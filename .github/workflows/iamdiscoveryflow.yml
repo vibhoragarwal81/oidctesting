@@ -1,5 +1,5 @@
 # .github/workflows/aws_iam_audit.yml
-name: AWS IAM Audit
+name: AWS M2M
 
 on:
   workflow_dispatch:
