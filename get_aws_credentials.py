@@ -37,7 +37,6 @@ def get_oidc_token():
     return response.json()["access_token"]
 
 def assume_role_with_oidc(token):
-
     client = boto3.client("sts", region_name=AWS_REGION)
     response = client.assume_role_with_web_identity(
         RoleArn=ROLE_ARN,
@@ -46,10 +45,17 @@ def assume_role_with_oidc(token):
         DurationSeconds=3600
     )
     creds = response["Credentials"]
-    creds["Expiration"] = creds["Expiration"].isoformat()
+
+    # Convert all datetime objects to strings
+    for key, value in creds.items():
+        if isinstance(value, datetime.datetime):
+            creds[key] = value.isoformat()
+
     with open("aws_temp_creds.json", "w") as f:
         json.dump(creds, f)
-        print("Temporary AWS credentials saved.")
+
+    print("Temporary AWS credentials saved.")
+
 
 if __name__ == "__main__":
     token = get_oidc_token()
