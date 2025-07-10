@@ -66,3 +66,9 @@ jobs:
             iam_users.csv
             iam_roles.csv
             iam_groups.csv
+      
+      - name: Upload IAM reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: iam-reports
+          path: reports/IAM/
