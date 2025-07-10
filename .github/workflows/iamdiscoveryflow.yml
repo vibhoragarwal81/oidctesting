@@ -1,71 +1,68 @@
-name: IAM Discovery with Entra ID
+# .github/workflows/aws_iam_audit.yml
+name: AWS IAM Audit
 
 on:
   workflow_dispatch:
 
 jobs:
-  get-token-and-assume-role:
-    name: Get OIDC Token and Assume Role
+  get-aws-creds:
     runs-on: ubuntu-latest
     outputs:
-      creds-path: ${{ steps.export-creds.outputs.creds-path }}
-    env:
-      TENANT_ID: ${{ secrets.ENTRA_TENANT_ID }}
-      CLIENT_ID: ${{ secrets.ENTRA_CLIENT_ID }}
-      CLIENT_SECRET: ${{ secrets.ENTRA_CLIENT_SECRET }}
-      MANAGEMENT_ACCOUNT_ID: ${{ secrets.MANAGEMENT_ACCOUNT_ID }}
-      ROLE_NAME: ${{ secrets.MANAGEMENT_ROLE_NAME }}
+      creds: ${{ steps.save-creds.outputs.creds }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Install jq
-        run: sudo apt-get install -y jq
-
-      - name: Run Script 1 - Get Token and Assume Role
-        run: |
-          chmod +x ./get_token_and_assume_role.sh
-          ./get_token_and_assume_role.sh
-
-      - name: Export credentials path
-        id: export-creds
-        run: echo "creds-path=aws_temp_creds.sh" >> $GITHUB_OUTPUT
-
-      - name: Upload credentials file
-        uses: actions/upload-artifact@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          name: aws-creds
-          path: aws_temp_creds.sh
+          python-version: '3.11'
 
-  run-iam-discovery:
-    name: Run IAM Discovery
+      - name: Install dependencies
+        run: pip install boto3 requests
+
+      - name: Run script to get AWS credentials
+        env:
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
+        run: python script1_get_aws_credentials.py
+
+      - name: Upload credentials artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: aws-temp-creds
+          path: aws_temp_creds.json
+
+  list-iam-objects:
+    needs: get-aws-creds
     runs-on: ubuntu-latest
-    needs: get-token-and-assume-role
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Install jq
-        run: sudo apt-get install -y jq
-
-      - name: Download credentials file
-        uses: actions/download-artifact@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          name: aws-creds
+          python-version: '3.11'
 
-      - name: Source AWS credentials
-        run: |
-          chmod +x aws_temp_creds.sh
-          source ./aws_temp_creds.sh
-          env | grep AWS
+      - name: Install dependencies
+        run: pip install boto3
 
-      - name: Run Script 2 - IAM Discovery
-        run: |
-          chmod +x ./list_all_iam_objects_all_accounts.sh
-          ./list_all_iam_objects_all_accounts.sh
-
-      - name: Upload IAM Discovery Report
-        uses: actions/upload-artifact@v4
+      - name: Download credentials artifact
+        uses: actions/download-artifact@v3
         with:
-          name: iam-discovery-report
-          path: iam_discovery_report.csv
+          name: aws-temp-creds
+
+      - name: Run script to list IAM objects
+        run: python script2_list_iam_objects.py
+
+      - name: Upload IAM CSVs
+        uses: actions/upload-artifact@v3
+        with:
+          name: iam-csvs
+          path: |
+            iam_users.csv
+            iam_roles.csv
+            iam_groups.csv
