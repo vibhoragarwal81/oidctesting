@@ -15,7 +15,7 @@ ROLE_ARN = os.environ["AWS_ROLE_ARN"]
 AWS_REGION = "us-east-1"
 
 def get_oidc_token():
-    url = f"https://login.microsoftonline.com/{TENANT_ID}/oauth2/v2.0/token"
+    url = f"https://login.microsoftonline.com/ac877863-5f25-4759-8c09-4d7b336b9341/oauth2/v2.0/token"
     data = {
         "client_id": CLIENT_ID,
         "scope": OIDC_SCOPE,
