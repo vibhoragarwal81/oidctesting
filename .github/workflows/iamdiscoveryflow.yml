@@ -27,7 +27,7 @@ jobs:
           AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
           AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
           AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
-        run: python script1_get_aws_credentials.py
+        run: python get_aws_credentials.py
 
       - name: Upload credentials artifact
         uses: actions/upload-artifact@v4
@@ -56,7 +56,7 @@ jobs:
           name: aws-temp-creds
 
       - name: Run script to list IAM objects
-        run: python script2_list_iam_objects.py
+        run: python list_iam_objects.py
 
       - name: Upload IAM CSVs
         uses: actions/upload-artifact@v4
