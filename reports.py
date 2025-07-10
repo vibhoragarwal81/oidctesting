@@ -41,7 +41,9 @@ def save_to_csv(data, filename):
         print(f"No data to write for {filename}")
         return
     fieldnames = sorted({key for item in data for key in item.keys()})
-    os.makedirs(os.path.dirname(filename), exist_ok=True)
+    dir_name = os.path.dirname(filename)
+    if dir_name:
+        os.makedirs(dir_name, exist_ok=True)
     with open(filename, "w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
