@@ -1,4 +1,3 @@
-# script2_list_iam_objects.py
 import boto3
 import json
 import csv
@@ -34,9 +33,13 @@ def list_iam_objects(iam_client):
     groups = iam_client.list_groups()["Groups"]
     return users, roles, groups
 
-def save_to_csv(data, filename, fields):
+def save_to_csv(data, filename):
+    if not data:
+        print(f"No data to write for {filename}")
+        return
+    fieldnames = sorted({key for item in data for key in item.keys()})
     with open(filename, "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=fields)
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(data)
 
@@ -48,11 +51,16 @@ if __name__ == "__main__":
         aws_session_token=creds["SessionToken"]
     )
 
+    management_account_id = org_client.describe_organization()["Organization"]["MasterAccountId"]
     accounts = get_org_accounts(org_client)
+
     all_users, all_roles, all_groups = [], [], []
 
     for acct in accounts:
         acct_id = acct["Id"]
+        if acct_id == management_account_id:
+            print(f"Skipping management account: {acct_id}")
+            continue
         try:
             temp_creds = assume_role(acct_id, "OrganizationAccountAccessRole", creds)
             iam = boto3.client("iam",
@@ -67,6 +75,6 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"Failed for account {acct_id}: {e}")
 
-    save_to_csv(all_users, "iam_users.csv", ["UserName", "Arn", "CreateDate"])
-    save_to_csv(all_roles, "iam_roles.csv", ["RoleName", "Arn", "CreateDate"])
-    save_to_csv(all_groups, "iam_groups.csv", ["GroupName", "Arn", "CreateDate"])
+    save_to_csv(all_users, "iam_users.csv")
+    save_to_csv(all_roles, "iam_roles.csv")
+    save_to_csv(all_groups, "iam_groups.csv")
