@@ -15,26 +15,25 @@ ROLE_ARN = os.environ["AWS_ROLE_ARN"]
 AWS_REGION = "us-east-1"
 
 def get_oidc_token():
+    url = f"https://login.microsoftonline.com/{TENANT_ID}/oauth2/v2.0/token"
+    data = {
+        "client_id": CLIENT_ID,
+        "scope": OIDC_SCOPE,
+        "client_secret": CLIENT_SECRET,
+        "grant_type": "client_credentials"
+    }
+    print("Requesting token from Azure...")
+    print("POST URL:", url)
+    print("POST Data:", data)
+
+    response = requests.post(url, data=data)
     
-    url = f"https://login.microsoftonline.com/ac877863-5f25-4759-8c09-4d7b336b9341/oauth2/v2.0/token"
-    data = {
-        "client_id": CLIENT_ID,
-        "scope": OIDC_SCOPE,
-        "client_secret": CLIENT_SECRET,
-        "grant_type": "client_credentials"
-    }
-    print("Requesting token from Azure...")
-    print("POST URL:", url)
-    print("POST Data:", data)
+    print("Status Code:", response.status_code)
+    print("Response Headers:", response.headers)
+    print("Response Text:", response.text)
 
-    response = requests.post(url, data=data)
-    
-    print("Status Code:", response.status_code)
-    print("Response Headers:", response.headers)
-    print("Response Text:", response.text)
-
-    response.raise_for_status()
-    return response.json()["access_token"]
+    response.raise_for_status()
+    return response.json()["access_token"]
 
 def assume_role_with_oidc(token):
 
