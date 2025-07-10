@@ -8,7 +8,7 @@ import os
 TENANT_ID = os.environ["AZURE_TENANT_ID"]
 CLIENT_ID = os.environ["AZURE_CLIENT_ID"]
 CLIENT_SECRET = os.environ["AZURE_CLIENT_SECRET"]
-OIDC_SCOPE = "api://e331bd64-25f4-4c4b-a58a-6a92a9ff94d7/.default"  # Replace with your scope
+OIDC_SCOPE = "api://aws-oidc/.default"  # Replace with your scope
 
 # AWS Role details
 ROLE_ARN = os.environ["AWS_ROLE_ARN"]
