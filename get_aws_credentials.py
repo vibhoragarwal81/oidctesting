@@ -3,6 +3,7 @@ import requests
 import boto3
 import json
 import os
+import datetime
 
 # Entra ID (Azure AD) App details
 TENANT_ID = os.environ["AZURE_TENANT_ID"]
@@ -45,8 +46,10 @@ def assume_role_with_oidc(token):
         DurationSeconds=3600
     )
     creds = response["Credentials"]
+    creds["Expiration"] = creds["Expiration"].isoformat()
     with open("aws_temp_creds.json", "w") as f:
         json.dump(creds, f)
+        print("Temporary AWS credentials saved.")
 
 if __name__ == "__main__":
     token = get_oidc_token()
