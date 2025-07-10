@@ -15,36 +15,28 @@ ROLE_ARN = os.environ["AWS_ROLE_ARN"]
 AWS_REGION = "us-east-1"
 
 def get_oidc_token():
-   # url = f"https://login.microsoftonline.com/ac877863-5f25-4759-8c09-4d7b336b9341/oauth2/v2.0/token"
-    #data = {
-     #   "client_id": CLIENT_ID,
-      #  "scope": OIDC_SCOPE,
-       # "client_secret": CLIENT_SECRET,
-        #"grant_type": "client_credentials"
-    #}
-    #response = requests.post(url, data=data)
-    #if response.status_code != 200:
-    #print("Error response:", response.text)
-    #response.raise_for_status()
-    #return response.json()["access_token"]
-    
     url = f"https://login.microsoftonline.com/{TENANT_ID}/oauth2/v2.0/token"
-    data = {
-        "client_id": CLIENT_ID,
-        "scope": OIDC_SCOPE,
-        "client_secret": CLIENT_SECRET,
-        "grant_type": "client_credentials"
-    }
-    response = requests.post(url, data=data)
-    if response.status_code != 200:
-        print("Azure AD token request failed:")
-        print("Status Code:", response.status_code)
-        print("Response Text:", response.text)
-    response.raise_for_status()
-    return response.json()["access_token"]
+    data = {
+        "client_id": CLIENT_ID,
+        "scope": OIDC_SCOPE,
+        "client_secret": CLIENT_SECRET,
+        "grant_type": "client_credentials"
+    }
+    print("Requesting token from Azure...")
+    print("POST URL:", url)
+    print("POST Data:", data)
 
+    response = requests.post(url, data=data)
+    
+    print("Status Code:", response.status_code)
+    print("Response Headers:", response.headers)
+    print("Response Text:", response.text)
+
+    response.raise_for_status()
+    return response.json()["access_token"]
 
 def assume_role_with_oidc(token):
+
     client = boto3.client("sts", region_name=AWS_REGION)
     response = client.assume_role_with_web_identity(
         RoleArn=ROLE_ARN,
