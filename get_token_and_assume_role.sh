@@ -11,7 +11,7 @@ TOKEN_RESPONSE=$(curl -s -X POST "https://login.microsoftonline.com/$TENANT_ID/o
   -d "grant_type=client_credentials" \
   -d "client_id=$CLIENT_ID" \
   -d "client_secret=$CLIENT_SECRET" \
-  -d "scope=api://$CLIENT_ID/.default")
+  -d "scope=api://aws-oidc/.default")
 
 OIDC_TOKEN=$(echo "$TOKEN_RESPONSE" | jq -r '.access_token')
 
