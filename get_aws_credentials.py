@@ -23,6 +23,8 @@ def get_oidc_token():
         "grant_type": "client_credentials"
     }
     response = requests.post(url, data=data)
+    if response.status_code != 200:
+    print("Error response:", response.text)
     response.raise_for_status()
     return response.json()["access_token"]
 
