@@ -11,7 +11,7 @@ jobs:
       creds: ${{ steps.save-creds.outputs.creds }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -30,7 +30,7 @@ jobs:
         run: python script1_get_aws_credentials.py
 
       - name: Upload credentials artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: aws-temp-creds
           path: aws_temp_creds.json
@@ -40,7 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -51,7 +51,7 @@ jobs:
         run: pip install boto3
 
       - name: Download credentials artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: aws-temp-creds
 
@@ -59,7 +59,7 @@ jobs:
         run: python script2_list_iam_objects.py
 
       - name: Upload IAM CSVs
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: iam-csvs
           path: |
