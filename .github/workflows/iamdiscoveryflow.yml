@@ -1,0 +1,68 @@
+# .github/workflows/aws_iam_audit.yml
+name: AWS IAM Audit
+
+on:
+  workflow_dispatch:
+
+jobs:
+  get-aws-creds:
+    runs-on: ubuntu-latest
+    outputs:
+      creds: ${{ steps.save-creds.outputs.creds }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install boto3 requests
+
+      - name: Run script to get AWS credentials
+        env:
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
+        run: python get_aws_credentials.py
+
+      - name: Upload credentials artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: aws-temp-creds
+          path: aws_temp_creds.json
+
+  list-iam-objects:
+    needs: get-aws-creds
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install boto3
+
+      - name: Download credentials artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: aws-temp-creds
+
+      - name: Run script to list IAM objects
+        run: python list_iam_objects.py
+
+      - name: Upload IAM CSVs
+        uses: actions/upload-artifact@v4
+        with:
+          name: iam-csvs
+          path: |
+            iam_users.csv
+            iam_roles.csv
+            iam_groups.csv
