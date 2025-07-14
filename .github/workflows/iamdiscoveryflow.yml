@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  get-aws-creds:
+  oauth-flow:
     runs-on: ubuntu-latest
     outputs:
       creds: ${{ steps.save-creds.outputs.creds }}
@@ -36,7 +36,7 @@ jobs:
           path: aws_temp_creds.json
 
   list-iam-objects:
-    needs: get-aws-creds
+    needs: oauth-flow
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
