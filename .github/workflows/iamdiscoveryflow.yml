@@ -7,8 +7,8 @@ on:
 jobs:
   oauth-flow:
     runs-on: ubuntu-latest
-    outputs:
-      creds: ${{ steps.save-creds.outputs.creds }}
+ #   outputs:
+   #   creds: ${{ steps.save-creds.outputs.creds }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
